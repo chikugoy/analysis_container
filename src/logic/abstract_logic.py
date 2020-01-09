@@ -8,9 +8,6 @@ from abc import ABCMeta, abstractmethod
 sys.path.append('./')
 from .abstract_interface import AbstractInterface
 
-sys.path.append('../')
-from config.config_ini import ConfigIni
-
 
 class AbstractLogic(metaclass=ABCMeta):
 

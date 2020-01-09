@@ -7,8 +7,8 @@ import errno
 import sys
 from threading import Lock
 
-sys.path.append('../')
-from extention.singleton import Singleton
+sys.path.append('./')
+from .singleton import Singleton
 
 
 class ConfigIni(Singleton):
@@ -20,7 +20,10 @@ class ConfigIni(Singleton):
     INI_SECTION_LOG = 'LOG'
     INI_REQUIRED_SECTIONS: tuple = (INI_SECTION_DEFAULT, INI_SECTION_LOG)
 
-    INI_SECTION_LOG_KEY = 'Debug'
+    INI_SECTION_LOG_KEY_DEBUG = 'Debug'
+
+    INI_ON_FLG = 'on'
+    INI_OFF_FLG = 'off'
 
     section_items = {}
 

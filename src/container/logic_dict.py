@@ -39,9 +39,13 @@ class LogicDict:
         Returns:
             bool: true:検証OK false:検証NG
         """
-        for index in self.logic_exec_dict:
+
+        if not self.logic_exec_dict:
+            return False
+
+        for logic_exec_list in self.logic_exec_dict:
             logic_exec_keys: list = []
-            for logic_exec_key in self.logic_exec_dict[index]:
+            for logic_exec_key in logic_exec_list:
                 logic_exec_keys.append(logic_exec_key)
 
             # 必須キーのみが含まれているか検証
@@ -68,11 +72,11 @@ class LogicDict:
 
         required_keys: list = list(self.LOGIC_EXEC_REQUIRED_KEY)
 
-        for key in logic_exec_keys:
+        for index, key in enumerate(logic_exec_keys):
             if not key in required_keys:
                 return False
 
-            del required_keys[key]
+            del required_keys[index]
 
         if not required_keys:
             return True
@@ -89,18 +93,18 @@ class LogicDict:
         Returns:
             bool: true:検証OK false:検証NG
         """        
-        for index in logic_exec_dict:
-            if not logic_exec_dict[index][self.LOGIC_EXEC_KEY]:
+        for logic_exec_list in logic_exec_dict:
+            if not logic_exec_list[self.LOGIC_EXEC_KEY]:
                 return False
-            elif issubclass(logic_exec_dict[index][self.LOGIC_EXEC_KEY]. AbstractLogic):
-                return False
-
-            if not logic_exec_dict[index][self.LOGIC_EXEC_INPUT_KEY]:
-                return False
-            elif issubclass(logic_exec_dict[index][self.LOGIC_EXEC_INPUT_KEY]. AbstractInterface):
+            elif issubclass(logic_exec_list[self.LOGIC_EXEC_KEY]. AbstractLogic):
                 return False
 
-            if not logic_exec_dict[index][self.LOGIC_EXEC_OUTPUT_KEY]:
+            if not logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]:
                 return False
-            elif issubclass(logic_exec_dict[index][self.LOGIC_EXEC_OUTPUT_KEY]. AbstractInterface):
+            elif issubclass(logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]. AbstractInterface):
+                return False
+
+            if not logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]:
+                return False
+            elif issubclass(logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]. AbstractInterface):
                 return False

@@ -21,4 +21,5 @@ logic_dict: LogicDict = LogicDict([{
     LogicDict.LOGIC_EXEC_OUTPUT_KEY: 'ISampleOutput',
 }])
 container = SimulatorContainer(logic_dict)
-container.execute()
+if container.execute() is False:
+    raise Exception('コンテナの実行に失敗しました')

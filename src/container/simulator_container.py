@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from config.config_ini import ConfigIni
 import sys
 
 sys.path.append('./')
@@ -11,9 +10,12 @@ from .abstract_container import AbstractContainer
 sys.path.append('../')
 from logic.abstract_interface import AbstractInterface
 from logic.abstract_logic import AbstractLogic
+from extention.logger import Logger
 
 
 class SimulatorContainer(AbstractContainer):
+    logger: Logger = Logger.get_instance()
+
     def __init__(self, logic_dict: LogicDict, options={}):
         """constructor
 
@@ -25,13 +27,21 @@ class SimulatorContainer(AbstractContainer):
         self.__logic_dict: LogicDict = logic_dict
 
     def execute(self):
-        # ロジックリストのバリデーション
-        if not self.__logic_dict.validateLogicExecDict():
-            return False
+        try:
+            # ロジックリストのバリデーション
+            if not self.__logic_dict.validateLogicExecDict():
+                return False
 
-        # ロジックリストの実行
-        if not self.execute_logic_dict(self.__logic_dict):
-            return False
+            # ロジックリストの実行
+            if not self.execute_logic_dict(self.__logic_dict):
+                return False
+
+        except Exception as e:
+            logger.error('catch Exception:', e)
+        else:
+            print('finish (no error)')
+        finally:
+            print('all finish')
 
     def execute_logic_dict(self, logic_dict: dict):
         for index in logic_dict:
