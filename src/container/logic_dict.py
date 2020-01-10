@@ -9,6 +9,7 @@ from logic.abstract_interface import AbstractInterface
 from extention.logger import Logger
 
 # 追加したロジッククラス、ロジックインプットクラス、ロジックアウトクラスをここに追記する
+# TODO: import importlib を使用して自動インポートしたい
 from logic.sample1.sample1_logic import Sample1Logic
 from logic.sample1.interface.i_sample1_input import ISample1Input
 from logic.sample1.interface.i_sample1_output import ISample1Output
@@ -17,7 +18,7 @@ from logic.sample1.interface.i_sample1_output import ISample1Output
 class LogicDict:
     """ロジック実行用のキーバリュー格納用クラス
 
-       格納以外に検証機能もあり
+       格納以外に検証とクラス変換機能もあり
     """
 
     # ロジック実行用のキーバリューのキー
@@ -30,7 +31,7 @@ class LogicDict:
     LOGIC_EXEC_KEY_LENGTH = 3
 
     __logger = None
-    __logic_exec_instance_dict: dict
+    __logic_exec_class_dict: dict
 
     def __init__(self, logic_exec_dict: dict):
         """コンストラクタ
@@ -43,10 +44,25 @@ class LogicDict:
         self.__logic_exec_dict: dict = logic_exec_dict
 
     def set_logger(self, logger: Logger):
+        """logger set
+        
+        Args:
+            logger (Logger): Logger
+        
+        Returns:
+            Logger: Logger
+        """
         self.__logger = logger
 
-    def get_logic_exec_instance_dict(self):
-        return self.__logic_exec_instance_dict
+    def get_logic_exec_class_dict(self):
+        """ロジック実行用のキーバリュー(クラス格納)を取得  
+           logic_exec_dictは下記の形式で格納されている  
+           [{ 'logic': LogicClass, 'input': InputClass, 'output': OutputClass}]  
+        
+        Returns:
+            dict: ロジック実行用のキーバリュー(クラス格納)
+        """
+        return self.__logic_exec_class_dict
 
     def validate_logic_exec_dict(self):
         """ロジック実行用のキーバリューを検証する
@@ -69,11 +85,16 @@ class LogicDict:
                 self.__logger.error('logic_exec_dict not only reuired key')
                 return False
 
-        # ロジック実行用のキーバリューのバリューに対象クラス名のインスタンスをセットして返す
-        self.__logic_exec_instance_dict = self.__conv_logic_exec_dict_value_name_to_instance
+        # ロジック実行用のキーバリューのクラス名(バリュー)必須チェック
+        if self.__validate_logic_exec_dict_required_class_name(self.__logic_exec_dict) is False:
+            self.__logger.error('logic_exec_dict not only reuired key')
+            return False
 
-        # ロジック実行用のキーに対する値が設定されているか、また、特定の型を継承しているか検証
-        if self.__get_logic_exec_instance_dict(self.__logic_exec_dict) is False:
+        # ロジック実行用のキーバリューをクラス名からクラスに変換して返す
+        self.__logic_exec_class_dict = self.__conv_logic_exec_dict_value_name_to_class(self.__logic_exec_dict)
+
+        # ロジック実行用のキーに対する特定の型を継承しているか検証
+        if self.__validate_logic_instance_type(self.__logic_exec_class_dict) is False:
             self.__logger.error('logic_exec_dict empty value or different abstract type')
             return False
 
@@ -83,7 +104,7 @@ class LogicDict:
         """必須キーのみが含まれているか検証
         
         Args:
-            logic_exec_keys (list): ロジック実行用のキーバリュー
+            logic_exec_keys (list): ロジック実行用のキーリスト
         
         Returns:
             bool: true:検証OK false:検証NG
@@ -106,82 +127,62 @@ class LogicDict:
 
         return False
 
-    def __conv_logic_exec_dict_value_name_to_instance(self, logic_exec_dict: dict):
-        """ロジック実行用のキーバリューのバリューに対象クラス名のインスタンスをセットして返す
+    def __validate_logic_exec_dict_required_class_name(self, logic_exec_dict: dict):
+        """ロジック実行用のキーバリューのクラス名(バリュー)必須チェック
+        
+        Args:
+            logic_exec_dict (dict): ロジック実行用のキーバリュ
+        
+        Returns:
+            bool: true:検証OK false:検証NG
+        """        
+        for class_name_list in logic_exec_dict:
+            if not class_name_list[self.LOGIC_EXEC_KEY]:
+                return False
+
+            if not class_name_list[self.LOGIC_EXEC_INPUT_KEY]:
+                return False
+            
+            if not class_name_list[self.LOGIC_EXEC_OUTPUT_KEY]:
+                return False
+
+        return True
+
+    def __conv_logic_exec_dict_value_name_to_class(self, logic_exec_dict: dict):
+        """ロジック実行用のキーバリューをクラス名からクラスに変換して返す
         
         Args:
             logic_exec_dict (dict): [description]
         
         Returns:
-            dict: 例) [{ 'logic': LogicClassInstance, 'input': LogicClassInstance, 'output': LogicClassInstance}]
+            dict: 例) [{ 'logic': LogicClass, 'input': InputClass, 'output': OutputClass}]
         """        
-        logic_exec_instance_dict = logic_exec_dict.copy()
+        logic_exec_class_dict = logic_exec_dict.copy()
         for index, logic_exec_list in enumerate(logic_exec_dict):
-            if not logic_exec_list[self.LOGIC_EXEC_KEY]:
-                return {}
+            logic_exec_class_dict[index][self.LOGIC_EXEC_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_KEY]]
+            logic_exec_class_dict[index][self.LOGIC_EXEC_INPUT_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]]
+            logic_exec_class_dict[index][self.LOGIC_EXEC_OUTPUT_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]]
 
-            logic_instance = globals()[logic_exec_list[self.LOGIC_EXEC_KEY]]
+        return logic_exec_class_dict
 
-            if not logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]:
-                return {}
-            
-            logic_input_instance = globals()[logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]]
-
-            if not logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]:
-                return {}
-
-            logic_output_instance = globals()[logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]]
-
-            logic_exec_instance_dict[index][self.LOGIC_EXEC_KEY] = logic_instance
-            logic_exec_instance_dict[index][self.LOGIC_EXEC_INPUT_KEY] = logic_input_instance
-            logic_exec_instance_dict[index][self.LOGIC_EXEC_OUTPUT_KEY] = logic_output_instance
-
-        return logic_exec_instance_dict
-
-
-    def __validate_logic_instance_type(self, logic_exec_instance_dict: dict):
-        """ロジック実行用のキーに対する値が設定されているか
-           また特定の型を継承しているか検証
+    def __validate_logic_instance_type(self, logic_exec_class_dict: dict):
+        """ロジック実行用のキーに対する特定の型を継承しているか検証
         
         Args:
-            logic_exec_instance_dict (dict): [description]
+            logic_exec_class_dict (dict): [description]
         
         Returns:
             bool: true:検証OK false:検証NG
         """
 
-        for logic_exec_instance_list in logic_exec_instance_dict:
-            if issubclass(type(logic_exec_instance_list[self.LOGIC_EXEC_KEY]), AbstractLogic):
+        for logic_exec_class_list in logic_exec_class_dict:
+            if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_KEY]), AbstractLogic):
                 return False
 
-            if issubclass(type(logic_exec_instance_list[self.LOGIC_EXEC_INPUT_KEY]), AbstractLogic):
+            if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_INPUT_KEY]), AbstractLogic):
                 return False
 
-            if issubclass(type(logic_exec_instance_list[self.LOGIC_EXEC_OUTPUT_KEY]), AbstractLogic):
-                return False
-
-        return True
-
-
-    def __validate_logic_instance_type(self, logic_exec_instance_dict: dict):
-        """ロジック実行用のキーに対する値が設定されているか
-           また特定の型を継承しているか検証
-        
-        Args:
-            logic_exec_instance_dict (dict): [description]
-        
-        Returns:
-            bool: true:検証OK false:検証NG
-        """
-
-        for logic_exec_instance_list in logic_exec_instance_dict:
-            if issubclass(type(logic_exec_instance_list[self.LOGIC_EXEC_KEY]), AbstractLogic):
-                return False
-
-            if issubclass(type(logic_exec_instance_list[self.LOGIC_EXEC_INPUT_KEY]), AbstractLogic):
-                return False
-
-            if issubclass(type(logic_exec_instance_list[self.LOGIC_EXEC_OUTPUT_KEY]), AbstractLogic):
+            if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_OUTPUT_KEY]), AbstractLogic):
                 return False
 
         return True

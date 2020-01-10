@@ -8,8 +8,12 @@ from abc import ABCMeta, abstractmethod
 sys.path.append('./')
 from .abstract_interface import AbstractInterface
 
+sys.path.append('../')
+from extention.logger import Logger
+
 
 class AbstractLogic(metaclass=ABCMeta):
+    _logger: Logger = Logger.get_instance()
 
     def __init__(self, inputValue: AbstractInterface, output: AbstractInterface):
         self._input = inputValue

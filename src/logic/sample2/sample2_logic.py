@@ -14,5 +14,6 @@ class Sample2Logic(AbstractLogic):
         super().__init__(inputValue, output)
 
     def execute(self):
+        self._logger.debug('sample1 logic execute!!')
         self.output = self._output
         return True

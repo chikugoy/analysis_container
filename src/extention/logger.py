@@ -11,6 +11,7 @@ from threading import Lock
 sys.path.append('./')
 from .singleton import Singleton
 
+# TODO: app.logには日時などが出力されないのでなんとかしたい
 
 class Logger(Singleton):
     """Logger
@@ -108,7 +109,7 @@ class Logger(Singleton):
 
         current_path = str(Path.cwd())
 
-        # todo src直下でないと動かない
+        # TODO: src直下でないと動かないので改善したい
         log_ini_file_path = current_path + os.sep + \
             cls.LOG_INI_DIR_NAME + os.sep + cls.LOG_INI_FILE_NAME
         logging.config.fileConfig(
@@ -117,7 +118,7 @@ class Logger(Singleton):
         logger = logging.getLogger(cls.LOG_INI_QUAL_NAME)
         # logger.setLevel(logging.DEBUG)        # ログレベルの設定はiniで行う
 
-        # todo src直下でないと動かない
+        # TODO: src直下でないと動かないので改善したい
         log_file_path = current_path + os.sep + \
             cls.LOG_DIR_NAME + os.sep + cls.LOG_FILE_NAME
         get_handler = logging.FileHandler(log_file_path)

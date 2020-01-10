@@ -10,17 +10,15 @@ from .abstract_container import AbstractContainer
 sys.path.append('../')
 from logic.abstract_interface import AbstractInterface
 from logic.abstract_logic import AbstractLogic
-from logic.sample1.sample1_logic import Sample1Logic
-from logic.sample1.interface.i_sample1_input import ISample1Input
-from logic.sample1.interface.i_sample1_output import ISample1Output
 
 
 class SimulatorContainer(AbstractContainer):
     """Simulator Container
-    
+
     Args:
         AbstractContainer (AbstractContainer): AbstractContainer継承
     """
+
     def __init__(self, logic_dict: LogicDict, options={}):
         """constructor
 
@@ -33,18 +31,18 @@ class SimulatorContainer(AbstractContainer):
 
     def execute(self):
         """container execute
-        
+
         Returns:
             bool: True: execute success False: execute fail
         """
         self._logger.debug('container execute start >>>>>>>>>>>>>>>>>>>')
         try:
             self.__logic_dict.set_logger(self._logger)
-            if not self.__logic_dict.validateLogicExecDict():
+            if not self.__logic_dict.validate_logic_exec_dict():
                 self._logger.error('logic_dict validation return False')
                 return False
 
-            if not self.execute_logic_dict(self.__logic_dict.logic_exec_dict):
+            if not self.__execute_logic_dict(self.__logic_dict.get_logic_exec_class_dict()):
                 self._logger.error('execute logic_exec_dict return False')
                 return False
 
@@ -57,30 +55,25 @@ class SimulatorContainer(AbstractContainer):
         finally:
             self._logger.debug('container execute end  <<<<<<<<<<<<<<<<<<<<')
 
-    def execute_logic_dict(self, logic_exec_dict: dict):
+    def __execute_logic_dict(self, logic_exec_instance_dict: dict):
         """logic execute
-        
+
         Args:
             logic_exec_dict (dict): 実行対象ロジックdict
-        """        
-        for logic_dict in logic_exec_dict:
-            input_class_name = logic_dict[LogicDict.LOGIC_EXEC_INPUT_KEY]
-            input_class = globals()[input_class_name]
-            input_class_instance: AbstractInterface = input_class()
-
-            output_class_name = logic_dict[LogicDict.LOGIC_EXEC_OUTPUT_KEY]
-            output_class = globals()[output_class_name]
-            output_class_instance: AbstractInterface = output_class()
-
-            logic_class_name = logic_dict[LogicDict.LOGIC_EXEC_KEY]
-            logic_class = globals()[logic_class_name]
-            logic_class_instance: AbstractLogic = logic_class(
-                input_class_instance, output_class_instance)
+        """
+        for logic_exec_instance_list in logic_exec_instance_dict:
+            logic_class = logic_exec_instance_list[LogicDict.LOGIC_EXEC_KEY]
+            logic_input_instance = logic_exec_instance_list[LogicDict.LOGIC_EXEC_INPUT_KEY]()
+            logic_output_instance = logic_exec_instance_list[LogicDict.LOGIC_EXEC_OUTPUT_KEY]()
+            logic_instance: AbstractLogic = logic_class(
+                logic_input_instance, logic_output_instance)
 
             self._logger.debug('logic start >>>>>>>>>>>')
-            self._logger.debug('logic:' + logic_class_name + ' input:' + input_class_name + ' output:' + output_class_name)
+            self._logger.debug('logic:' + logic_instance.__class__.__name__ +
+                               ' input:' + logic_input_instance.__class__.__name__ +
+                               ' output:' + logic_output_instance.__class__.__name__)
 
-            if logic_class_instance.execute() is False:
+            if logic_instance.execute() is False:
                 self._logger.error('logic execute fail')
                 return False
             else:
