@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 from abc import ABCMeta, abstractmethod
+
+sys.path.append('../')
+from extention.logger import Logger
 
 
 class AbstractContainer(metaclass=ABCMeta):
@@ -12,6 +16,8 @@ class AbstractContainer(metaclass=ABCMeta):
     Args:
         metaclass ([type], optional): [description]. Defaults to ABCMeta.
     """
+
+    _logger: Logger = Logger.get_instance()
 
     def __init__(self):
         """constructor

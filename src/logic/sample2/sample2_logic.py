@@ -8,10 +8,10 @@ from logic.abstract_logic import AbstractLogic
 from logic.abstract_interface import AbstractInterface
 
 
-class SampleLogic(AbstractLogic):
+class Sample2Logic(AbstractLogic):
 
     def __init__(self, inputValue: AbstractInterface, output: AbstractInterface):
-        super.__init__(self, inputValue, output)
+        super().__init__(inputValue, output)
 
     def execute(self):
         self.output = self._output
