@@ -66,16 +66,27 @@ class SimulatorContainer(AbstractContainer):
         """
         for logic_exec_class_list in logic_exec_class_dict:
             # logic class Dependency Injection
-            logic_class = logic_exec_class_list[LogicDict.LOGIC_EXEC_KEY]
-            logic_input_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_KEY]()
-            logic_output_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_OUTPUT_KEY]()
+            logic_class: AbstractLogic = logic_exec_class_list[LogicDict.LOGIC_EXEC_KEY]
+
+            logic_input_instance: AbstractInterface = None
+            logic_input_class_name = 'nothing'
+            if logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_KEY]:
+                logic_input_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_KEY]()
+                logic_input_class_name = logic_input_instance.__class__.__name__
+
+            logic_output_instance: AbstractInterface = None
+            logic_output_class_name = 'nothing'
+            if logic_exec_class_list[LogicDict.LOGIC_EXEC_OUTPUT_KEY]:
+                logic_output_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_OUTPUT_KEY]()
+                logic_output_class_name = logic_output_instance.__class__.__name__
+
             logic_instance: AbstractLogic = logic_class(
                 logic_input_instance, logic_output_instance)
 
             self._logger.debug('logic start >>>>>>>>>>>')
             self._logger.debug('logic:' + logic_instance.__class__.__name__ +
-                               ' input:' + logic_input_instance.__class__.__name__ +
-                               ' output:' + logic_output_instance.__class__.__name__)
+                               ' input:' + logic_input_class_name +
+                               ' output:' + logic_output_class_name)
 
             if logic_instance.execute() is False:
                 self._logger.error('logic execute fail')

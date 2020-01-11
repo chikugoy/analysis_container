@@ -13,6 +13,9 @@ from extention.logger import Logger
 from logic.sample1.sample1_logic import Sample1Logic
 from logic.sample1.interface.i_sample1_input import ISample1Input
 from logic.sample1.interface.i_sample1_output import ISample1Output
+from logic.sample2.sample2_logic import Sample2Logic
+from logic.sample2.interface.i_sample2_input import ISample2Input
+from logic.sample2.interface.i_sample2_output import ISample2Output
 
 
 class LogicDict:
@@ -25,10 +28,11 @@ class LogicDict:
     LOGIC_EXEC_KEY = 'logic'            # 実行対象logicクラス用のキー
     LOGIC_EXEC_INPUT_KEY = 'input'      # 実行対象logicのインプットインターフェイス用のキー
     LOGIC_EXEC_OUTPUT_KEY = 'output'    # 実行対象logicのアウトプットインターフェイス用のキー
-    LOGIC_EXEC_REQUIRED_KEY: tuple = (LOGIC_EXEC_KEY, LOGIC_EXEC_INPUT_KEY, LOGIC_EXEC_OUTPUT_KEY)
+    LOGIC_EXEC_KEYS: tuple = (LOGIC_EXEC_KEY, LOGIC_EXEC_INPUT_KEY, LOGIC_EXEC_OUTPUT_KEY)
+    LOGIC_EXEC_REQUIRED_KEYS: tuple = (LOGIC_EXEC_KEY,)
 
-    # ロジック実行用のキーバリューのキーの数（固定）
-    LOGIC_EXEC_KEY_LENGTH = 3
+    # ロジック実行用のキーバリューのキーの最大数
+    LOGIC_EXEC_KEY_MAX_LENGTH = 3
 
     __logger = None
     __logic_exec_class_dict: dict
@@ -77,8 +81,8 @@ class LogicDict:
             for logic_exec_key in logic_exec_list:
                 logic_exec_keys.append(logic_exec_key)
 
-            if self.__validate_only_require_keys(logic_exec_keys) is False:
-                self.__logger.error('logic_exec_dict not only reuired key')
+            if self.__validate_require_and_define_keys(logic_exec_keys) is False:
+                self.__logger.error('logic_exec_dict not reuired key or not define key')
                 return False
 
         if self.__validate_required_value_class_name(self.__logic_exec_dict) is False:
@@ -93,8 +97,8 @@ class LogicDict:
 
         return True
 
-    def __validate_only_require_keys(self, logic_exec_keys: list) -> bool:
-        """必須キーのみが含まれているか検証
+    def __validate_require_and_define_keys(self, logic_exec_keys: list) -> bool:
+        """必須キー、および、定義されたキーが含まれているか検証
         
         Args:
             logic_exec_keys (list): ロジック実行用のキーリスト
@@ -104,19 +108,24 @@ class LogicDict:
         """        
         if not logic_exec_keys:
             return False
-        elif len(logic_exec_keys) != self.LOGIC_EXEC_KEY_LENGTH:
+        elif len(logic_exec_keys) > self.LOGIC_EXEC_KEY_MAX_LENGTH:
+            # 指定された要素数以内か
+            return False
+        elif len(logic_exec_keys) != len(set(logic_exec_keys)):
+            # 重複要素がないか
             return False
 
-        required_keys: list = list(self.LOGIC_EXEC_REQUIRED_KEY)
-
+        required_keys: list = list(self.LOGIC_EXEC_REQUIRED_KEYS)
+        
         for key in logic_exec_keys:
-            if not key in required_keys:
+            if not key in self.LOGIC_EXEC_KEYS:
                 return False
 
-            del required_keys[required_keys.index(key)]
+            if key in self.LOGIC_EXEC_REQUIRED_KEYS:
+                del required_keys[required_keys.index(key)]
 
         if not required_keys:
-            return True
+            return True        
 
         return False
 
@@ -133,12 +142,6 @@ class LogicDict:
             if not class_name_list[self.LOGIC_EXEC_KEY]:
                 return False
 
-            if not class_name_list[self.LOGIC_EXEC_INPUT_KEY]:
-                return False
-            
-            if not class_name_list[self.LOGIC_EXEC_OUTPUT_KEY]:
-                return False
-
         return True
 
     def __convert_value_name_to_class(self, logic_exec_dict: dict) -> dict:
@@ -153,8 +156,16 @@ class LogicDict:
         logic_exec_class_dict = logic_exec_dict.copy()
         for index, logic_exec_list in enumerate(logic_exec_dict):
             logic_exec_class_dict[index][self.LOGIC_EXEC_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_KEY]]
-            logic_exec_class_dict[index][self.LOGIC_EXEC_INPUT_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]]
-            logic_exec_class_dict[index][self.LOGIC_EXEC_OUTPUT_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]]
+
+            if logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]:
+                logic_exec_class_dict[index][self.LOGIC_EXEC_INPUT_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_INPUT_KEY]]
+            else:
+                logic_exec_class_dict[index][self.LOGIC_EXEC_INPUT_KEY] = None
+
+            if logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]:
+                logic_exec_class_dict[index][self.LOGIC_EXEC_OUTPUT_KEY] = globals()[logic_exec_list[self.LOGIC_EXEC_OUTPUT_KEY]]
+            else:
+                logic_exec_class_dict[index][self.LOGIC_EXEC_OUTPUT_KEY] = None
 
         return logic_exec_class_dict
 
@@ -172,10 +183,12 @@ class LogicDict:
             if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_KEY]), AbstractLogic):
                 return False
 
-            if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_INPUT_KEY]), AbstractLogic):
-                return False
+            if not logic_exec_class_list[self.LOGIC_EXEC_INPUT_KEY] is None:
+                if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_INPUT_KEY]), AbstractLogic):
+                    return False
 
-            if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_OUTPUT_KEY]), AbstractLogic):
-                return False
+            if not logic_exec_class_list[self.LOGIC_EXEC_OUTPUT_KEY] is None:
+                if issubclass(type(logic_exec_class_list[self.LOGIC_EXEC_OUTPUT_KEY]), AbstractLogic):
+                    return False
 
         return True
