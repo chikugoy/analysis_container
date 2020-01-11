@@ -13,7 +13,7 @@ class Sample2Logic(AbstractLogic):
     def __init__(self, inputValue: AbstractInterface, output: AbstractInterface):
         super().__init__(inputValue, output)
 
-    def execute(self):
-        self._logger.debug('sample1 logic execute!!')
+    def execute(self) -> bool:
+        self._logger.debug('sample2 logic execute!!')
         self.output = self._output
         return True

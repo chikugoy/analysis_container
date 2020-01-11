@@ -22,7 +22,7 @@ class Singleton:
         raise NotImplementedError('Cannot initialize via Constructor')
 
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls) -> object:
         """インスタンス(生成)取得
         
         Returns:

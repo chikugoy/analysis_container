@@ -9,12 +9,12 @@ from extention.logger import Logger
 
 
 class AbstractContainer(metaclass=ABCMeta):
-    """コンテナ基底クラス
+    """Container Abstract Class
        ここでのコンテナはpython的なlistやdictではなく
        ロジック実行用の箱の事
 
     Args:
-        metaclass ([type], optional): [description]. Defaults to ABCMeta.
+        metaclass (ABCMeta, optional): Defaults to ABCMeta.
     """
 
     _logger: Logger = Logger.get_instance()
@@ -25,5 +25,5 @@ class AbstractContainer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def execute(self):
-        pass
+    def execute(self) -> bool:
+        return True

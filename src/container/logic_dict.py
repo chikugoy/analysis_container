@@ -48,15 +48,12 @@ class LogicDict:
         
         Args:
             logger (Logger): Logger
-        
-        Returns:
-            Logger: Logger
         """
         self.__logger = logger
 
-    def get_logic_exec_class_dict(self):
+    def get_logic_exec_class_dict(self) -> dict:
         """ロジック実行用のキーバリュー(クラス格納)を取得  
-           logic_exec_dictは下記の形式で格納されている  
+           キーバリューは下記の形式で格納されている  
            [{ 'logic': LogicClass, 'input': InputClass, 'output': OutputClass}]  
         
         Returns:
@@ -64,7 +61,7 @@ class LogicDict:
         """
         return self.__logic_exec_class_dict
 
-    def validate_logic_exec_dict(self):
+    def validate_logic_exec_dict(self) -> bool:
         """ロジック実行用のキーバリューを検証する
 
         Returns:
@@ -80,27 +77,23 @@ class LogicDict:
             for logic_exec_key in logic_exec_list:
                 logic_exec_keys.append(logic_exec_key)
 
-            # 必須キーのみが含まれているか検証
             if self.__validate_only_require_keys(logic_exec_keys) is False:
                 self.__logger.error('logic_exec_dict not only reuired key')
                 return False
 
-        # ロジック実行用のキーバリューのクラス名(バリュー)必須チェック
-        if self.__validate_logic_exec_dict_required_class_name(self.__logic_exec_dict) is False:
+        if self.__validate_required_value_class_name(self.__logic_exec_dict) is False:
             self.__logger.error('logic_exec_dict not only reuired key')
             return False
 
-        # ロジック実行用のキーバリューをクラス名からクラスに変換して返す
-        self.__logic_exec_class_dict = self.__conv_logic_exec_dict_value_name_to_class(self.__logic_exec_dict)
+        self.__logic_exec_class_dict = self.__convert_value_name_to_class(self.__logic_exec_dict)
 
-        # ロジック実行用のキーに対する特定の型を継承しているか検証
-        if self.__validate_logic_instance_type(self.__logic_exec_class_dict) is False:
+        if self.__validate_value_instance_type(self.__logic_exec_class_dict) is False:
             self.__logger.error('logic_exec_dict empty value or different abstract type')
             return False
 
         return True
 
-    def __validate_only_require_keys(self, logic_exec_keys: list):
+    def __validate_only_require_keys(self, logic_exec_keys: list) -> bool:
         """必須キーのみが含まれているか検証
         
         Args:
@@ -127,7 +120,7 @@ class LogicDict:
 
         return False
 
-    def __validate_logic_exec_dict_required_class_name(self, logic_exec_dict: dict):
+    def __validate_required_value_class_name(self, logic_exec_dict: dict) -> bool:
         """ロジック実行用のキーバリューのクラス名(バリュー)必須チェック
         
         Args:
@@ -148,7 +141,7 @@ class LogicDict:
 
         return True
 
-    def __conv_logic_exec_dict_value_name_to_class(self, logic_exec_dict: dict):
+    def __convert_value_name_to_class(self, logic_exec_dict: dict) -> dict:
         """ロジック実行用のキーバリューをクラス名からクラスに変換して返す
         
         Args:
@@ -165,7 +158,7 @@ class LogicDict:
 
         return logic_exec_class_dict
 
-    def __validate_logic_instance_type(self, logic_exec_class_dict: dict):
+    def __validate_value_instance_type(self, logic_exec_class_dict: dict) -> bool:
         """ロジック実行用のキーに対する特定の型を継承しているか検証
         
         Args:

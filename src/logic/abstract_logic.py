@@ -20,5 +20,5 @@ class AbstractLogic(metaclass=ABCMeta):
         self._output = output
 
     @abstractmethod
-    def execute(self):
-        pass
+    def execute(self) -> bool:
+        return True

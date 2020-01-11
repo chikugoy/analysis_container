@@ -16,20 +16,20 @@ class SimulatorContainer(AbstractContainer):
     """Simulator Container
 
     Args:
-        AbstractContainer (AbstractContainer): AbstractContainer継承
+        AbstractContainer (AbstractContainer): AbstractContainer Inheritance
     """
 
     def __init__(self, logic_dict: LogicDict, options={}):
+        # TODO: 並列実行option
         """constructor
 
         Args:
-            AbstractContainer ([type]): [description]
             logic_dict (LogicDict): [description]
             options ([type]): [description]
         """
         self.__logic_dict: LogicDict = logic_dict
 
-    def execute(self):
+    def execute(self) -> bool:
         """container execute
 
         Returns:
@@ -39,11 +39,11 @@ class SimulatorContainer(AbstractContainer):
         try:
             self.__logic_dict.set_logger(self._logger)
             if not self.__logic_dict.validate_logic_exec_dict():
-                self._logger.error('logic_dict validation return False')
+                self._logger.error('logic validation return False')
                 return False
 
-            if not self.__execute_logic_dict(self.__logic_dict.get_logic_exec_class_dict()):
-                self._logger.error('execute logic_exec_dict return False')
+            if not self.__execute_logic_by_dependency_injection(self.__logic_dict.get_logic_exec_class_dict()):
+                self._logger.error('logic execute return False')
                 return False
 
         except Exception as e:
@@ -55,16 +55,20 @@ class SimulatorContainer(AbstractContainer):
         finally:
             self._logger.debug('container execute end  <<<<<<<<<<<<<<<<<<<<')
 
-    def __execute_logic_dict(self, logic_exec_instance_dict: dict):
-        """logic execute
+    def __execute_logic_by_dependency_injection(self, logic_exec_class_dict: dict) -> bool:
+        """logic classをDIして実行
 
         Args:
-            logic_exec_dict (dict): 実行対象ロジックdict
+            logic_exec_class_dict (dict): 実行対象ロジックdict
+
+        Returns:
+            bool: True: logic execute success False: logic execute fail
         """
-        for logic_exec_instance_list in logic_exec_instance_dict:
-            logic_class = logic_exec_instance_list[LogicDict.LOGIC_EXEC_KEY]
-            logic_input_instance = logic_exec_instance_list[LogicDict.LOGIC_EXEC_INPUT_KEY]()
-            logic_output_instance = logic_exec_instance_list[LogicDict.LOGIC_EXEC_OUTPUT_KEY]()
+        for logic_exec_class_list in logic_exec_class_dict:
+            # logic class Dependency Injection
+            logic_class = logic_exec_class_list[LogicDict.LOGIC_EXEC_KEY]
+            logic_input_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_KEY]()
+            logic_output_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_OUTPUT_KEY]()
             logic_instance: AbstractLogic = logic_class(
                 logic_input_instance, logic_output_instance)
 

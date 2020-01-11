@@ -29,7 +29,7 @@ class Logger(Singleton):
     __init_setting_log_flg = False
 
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls) -> Singleton:
         """インスタンス（生成）取得とログ初期設定処理
         
         Returns:
