@@ -28,11 +28,9 @@ class LogicDict:
     LOGIC_EXEC_KEY = 'logic'            # 実行対象logicクラス用のキー
     LOGIC_EXEC_INPUT_KEY = 'input'      # 実行対象logicのインプットインターフェイス用のキー
     LOGIC_EXEC_OUTPUT_KEY = 'output'    # 実行対象logicのアウトプットインターフェイス用のキー
+    LOGIC_EXEC_KEY_MAX_LENGTH = 3       # ロジック実行用のキーバリューのキーの最大数
     LOGIC_EXEC_KEYS: tuple = (LOGIC_EXEC_KEY, LOGIC_EXEC_INPUT_KEY, LOGIC_EXEC_OUTPUT_KEY)
     LOGIC_EXEC_REQUIRED_KEYS: tuple = (LOGIC_EXEC_KEY,)
-
-    # ロジック実行用のキーバリューのキーの最大数
-    LOGIC_EXEC_KEY_MAX_LENGTH = 3
 
     __logger = None
     __logic_exec_class_dict: dict

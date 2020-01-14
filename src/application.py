@@ -14,7 +14,7 @@ logic_dict: LogicDict = LogicDict(
         {
             LogicDict.LOGIC_EXEC_KEY: 'Sample2Logic',
             LogicDict.LOGIC_EXEC_INPUT_KEY: 'ISample1Output',
-            LogicDict.LOGIC_EXEC_OUTPUT_KEY: 'ISample2Output',
+            LogicDict.LOGIC_EXEC_OUTPUT_KEY: '',
         }
     ]
 )
