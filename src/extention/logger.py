@@ -127,3 +127,7 @@ class Logger(Singleton):
         cls.__logger = logger
 
         cls.__init_setting_log_flg = True
+
+        mpl_logger = logging.getLogger('matplotlib')
+        mpl_logger.setLevel(logging.WARNING)        
+

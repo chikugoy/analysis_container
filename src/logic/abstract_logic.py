@@ -22,3 +22,6 @@ class AbstractLogic(metaclass=ABCMeta):
     @abstractmethod
     def execute(self) -> bool:
         return True
+
+    def get_output(self) -> AbstractInterface:
+        return self._output

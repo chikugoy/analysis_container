@@ -10,13 +10,13 @@ from extention.logger import Logger
 
 # 追加したロジッククラス、ロジックインプットクラス、ロジックアウトクラスをここに追記する
 # TODO: import importlib を使用して自動インポートしたい
+
 from logic.sample1.sample1_logic import Sample1Logic
 from logic.sample1.interface.i_sample1_input import ISample1Input
 from logic.sample1.interface.i_sample1_output import ISample1Output
 from logic.sample2.sample2_logic import Sample2Logic
 from logic.sample2.interface.i_sample2_input import ISample2Input
 from logic.sample2.interface.i_sample2_output import ISample2Output
-
 
 class LogicDict:
     """ロジック実行用のキーバリュー格納用クラス
@@ -25,11 +25,12 @@ class LogicDict:
     """
 
     # ロジック実行用のキーバリューのキー
-    LOGIC_EXEC_KEY = 'logic'            # 実行対象logicクラス用のキー
-    LOGIC_EXEC_INPUT_KEY = 'input'      # 実行対象logicのインプットインターフェイス用のキー
-    LOGIC_EXEC_OUTPUT_KEY = 'output'    # 実行対象logicのアウトプットインターフェイス用のキー
-    LOGIC_EXEC_KEY_MAX_LENGTH = 3       # ロジック実行用のキーバリューのキーの最大数
-    LOGIC_EXEC_KEYS: tuple = (LOGIC_EXEC_KEY, LOGIC_EXEC_INPUT_KEY, LOGIC_EXEC_OUTPUT_KEY)
+    LOGIC_EXEC_KEY = 'logic'                        # 実行対象logicクラス用のキー
+    LOGIC_EXEC_INPUT_KEY = 'input'                  # 実行対象logicのインプットインターフェイス用のキー
+    LOGIC_EXEC_INPUT_INSTANCE = 'input_instance'    # 実行対象logicのインプットクラスインスタンス用のキー
+    LOGIC_EXEC_OUTPUT_KEY = 'output'                # 実行対象logicのアウトプットインターフェイス用のキー
+    LOGIC_EXEC_KEY_MAX_LENGTH = 4                   # ロジック実行用のキーバリューのキーの最大数
+    LOGIC_EXEC_KEYS: tuple = (LOGIC_EXEC_KEY, LOGIC_EXEC_INPUT_KEY, LOGIC_EXEC_INPUT_INSTANCE, LOGIC_EXEC_OUTPUT_KEY)
     LOGIC_EXEC_REQUIRED_KEYS: tuple = (LOGIC_EXEC_KEY,)
 
     __logger = None

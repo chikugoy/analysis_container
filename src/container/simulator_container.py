@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import concurrent.futures
 
 sys.path.append('./')
 from .logic_dict import LogicDict
@@ -18,6 +19,7 @@ class SimulatorContainer(AbstractContainer):
     Args:
         AbstractContainer (AbstractContainer): AbstractContainer Inheritance
     """
+    current_logic_output: AbstractInterface = None
 
     def __init__(self, logic_dict: LogicDict, options={}):
         # TODO: 並列実行option
@@ -42,6 +44,7 @@ class SimulatorContainer(AbstractContainer):
                 self._logger.error('logic validation return False')
                 return False
 
+
             if not self.__execute_logic_by_dependency_injection(self.__logic_dict.get_logic_exec_class_dict()):
                 self._logger.error('logic execute return False')
                 return False
@@ -64,6 +67,7 @@ class SimulatorContainer(AbstractContainer):
         Returns:
             bool: True: logic execute success False: logic execute fail
         """
+
         for logic_exec_class_list in logic_exec_class_dict:
             # logic class Dependency Injection
             logic_class: AbstractLogic = logic_exec_class_list[LogicDict.LOGIC_EXEC_KEY]
@@ -71,8 +75,18 @@ class SimulatorContainer(AbstractContainer):
             logic_input_instance: AbstractInterface = None
             logic_input_class_name = 'nothing'
             if logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_KEY]:
-                logic_input_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_KEY]()
+
+                if (LogicDict.LOGIC_EXEC_INPUT_INSTANCE in logic_exec_class_list and
+                    logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_INSTANCE]):
+                    logic_input_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_INSTANCE]
+                else:
+                    logic_input_instance = logic_exec_class_list[LogicDict.LOGIC_EXEC_INPUT_KEY]()
+
                 logic_input_class_name = logic_input_instance.__class__.__name__
+
+                for logic_output in self._logic_outputs:
+                    if logic_output.__class__.__name__ == logic_input_class_name:
+                        logic_input_instance = logic_output
 
             logic_output_instance: AbstractInterface = None
             logic_output_class_name = 'nothing'
@@ -93,6 +107,17 @@ class SimulatorContainer(AbstractContainer):
                 return False
             else:
                 self._logger.debug('logic execute success')
+
+            self._current_logic_output = logic_instance.get_output()
+
+            is_set_logic_output:bool = False
+            for i, logic_output in enumerate(self._logic_outputs):
+                if self._current_logic_output.__class__.__name__ == logic_output.__class__.__name__:
+                    self._logic_outputs[i] = self._current_logic_output
+                    is_set_logic_output = True
+
+            if is_set_logic_output == False:
+                self._logic_outputs.append(self._current_logic_output)
 
             self._logger.debug('logic end  <<<<<<<<<<<')
 

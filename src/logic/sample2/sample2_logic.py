@@ -16,4 +16,7 @@ class Sample2Logic(AbstractLogic):
     def execute(self) -> bool:
         self._logger.debug('sample2 logic execute!!')
         self.output = self._output
+        self.output.sample2_attr1 = 'hogehogetest1'
+        self.output.sample2_attr2 = 12345
+
         return True
