@@ -22,9 +22,9 @@ logic_dict: LogicDict = LogicDict(
 
 container = SimulatorContainer(logic_dict)
 container.execute()
-output = container.get_logic_output()
 
  # 分析結果整形・出力  ****************************************
+output = container.get_logic_output()
 output_model_infos: dict = {
     'sample2_attr1': output.sample2_attr1,
     'sample2_attr2': output.sample2_attr2
